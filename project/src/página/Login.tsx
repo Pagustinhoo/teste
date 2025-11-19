@@ -1,0 +1,158 @@
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Mail, Lock, Eye, EyeOff, LogIn, AlertCircle } from 'lucide-react';
+
+const Login: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+
+  // Substitua por sua lógica real de autenticação
+  const fakeLogin = async (email: string, password: string) => {
+    return new Promise<{ success: boolean; error?: string }>((resolve) => {
+      setTimeout(() => {
+        if (email.includes('@') && password.length >= 6) return resolve({ success: true });
+        return resolve({ success: false, error: 'Credenciais inválidas' });
+      }, 700);
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (!email || !password) {
+      setError('Por favor, preencha todos os campos');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('A senha deve ter pelo menos 6 caracteres');
+      return;
+    }
+
+    setIsLoading(true);
+    const result = await fakeLogin(email, password);
+    setIsLoading(false);
+
+    if (result.success) {
+      navigate('/');
+    } else {
+      setError(result.error || 'Erro desconhecido');
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-gray-800 mb-2">Bem-vindo de volta!</h2>
+          <p className="text-gray-600">Entre na sua conta para continuar</p>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-lg p-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center space-x-2">
+                <AlertCircle size={20} />
+                <span className="text-sm">{error}</span>
+              </div>
+            )}
+
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                Email
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="seu@email.com"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                Senha
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Sua senha (mín. 6 caracteres)"
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                  minLength={6}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <label className="flex items-center">
+                <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                <span className="ml-2 text-sm text-gray-600">Lembrar de mim</span>
+              </label>
+              <a href="#" className="text-sm text-blue-600 hover:text-blue-700">
+                Esqueceu a senha?
+              </a>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                <>
+                  <LogIn size={20} />
+                  <span>Entrar</span>
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-gray-600">
+              Não tem uma conta?{' '}
+              <Link to="/cadastro" className="text-blue-600 hover:text-blue-700 font-semibold">
+                Cadastre-se aqui
+              </Link>
+            </p>
+          </div>
+        </div>
+
+        <div className="text-center text-sm text-gray-500">
+          <p>🔒 Sistema de autenticação seguro</p>
+          <p>
+            <a href="#" className="text-blue-600 hover:text-blue-700">Termos de Uso</a>
+            {' e '}
+            <a href="#" className="text-blue-600 hover:text-blue-700">Política de Privacidade</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Login;
